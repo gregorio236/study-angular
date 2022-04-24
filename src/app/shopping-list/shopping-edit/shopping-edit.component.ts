@@ -6,5 +6,5 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./shopping-edit.component.css"],
 })
 export class ShoppingEditComponent implements OnInit {
-  ngOnInit() {}
+  ngOnInit(): void {}
 }
