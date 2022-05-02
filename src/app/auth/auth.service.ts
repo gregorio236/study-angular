@@ -18,7 +18,7 @@ export interface LoginResponseData extends AuthResponseData {
   registered: boolean;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class AuthService {
   userSubject = new BehaviorSubject<User | null>(null);
 
