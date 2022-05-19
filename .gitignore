@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/angular,node,visualstudiocode,windows
-# Edit at https://www.toptal.com/developers/gitignore?templates=angular,node,visualstudiocode,windows
+# Created by https://www.toptal.com/developers/gitignore/api/angular,node,visualstudiocode,windows,firebase
+# Edit at https://www.toptal.com/developers/gitignore?templates=angular,node,visualstudiocode,windows,firebase
 
 ### Angular ###
 ## Angular ##
@@ -33,6 +33,15 @@ e2e/*.map
 
 # System Files
 .DS_Store/
+
+### Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
 
 ### Node ###
 # Logs
@@ -193,6 +202,10 @@ dist
 .ionide
 
 # Support for Project snippet scope
+.vscode/*.code-snippets
+
+# Ignore code-workspaces
+*.code-workspace
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -220,4 +233,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/angular,node,visualstudiocode,windows
+# End of https://www.toptal.com/developers/gitignore/api/angular,node,visualstudiocode,windows,firebase
