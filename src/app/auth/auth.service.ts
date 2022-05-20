@@ -1,9 +1,12 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { BehaviorSubject, catchError, Observable, tap, throwError } from "rxjs";
+import { Store } from "@ngrx/store";
+import { catchError, Observable, tap, throwError } from "rxjs";
 
 import { environment } from "src/environments/environment";
+import * as fromApp from "../store/app.reducer";
+import * as fromAuth from "./store/auth.reducer";
 import { User, UserJson } from "./user.model";
 
 export interface AuthResponseData {
@@ -21,14 +24,13 @@ export interface LoginResponseData extends AuthResponseData {
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
-  userSubject = new BehaviorSubject<User | null>(null);
-
   private readonly UserDataKey = "userData";
   private tokenExpirationTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly store: Store<fromApp.AppState>
   ) {}
 
   signup(email: string, password: string): Observable<AuthResponseData> {
@@ -67,12 +69,12 @@ export class AuthService {
     const user = User.parseJson(JSON.parse(userData) as UserJson);
     if (user.token == null) return;
 
-    this.userSubject.next(user);
+    this.store.dispatch(new fromAuth.Actions.Login(user));
     this.autoLogout(user.msToTokenExpiration);
   }
 
   logout(): void {
-    this.userSubject.next(null);
+    this.store.dispatch(new fromAuth.Actions.Logout());
     localStorage.removeItem(this.UserDataKey);
 
     if (this.tokenExpirationTimer != null) {
@@ -101,7 +103,7 @@ export class AuthService {
       expirationDate
     );
 
-    this.userSubject.next(user);
+    this.store.dispatch(new fromAuth.Actions.Login(user));
     this.autoLogout(user.msToTokenExpiration);
     localStorage.setItem(this.UserDataKey, JSON.stringify(user));
   }
