@@ -31,9 +31,10 @@ export class AuthGuard implements CanActivate {
       map((authState) => authState.user),
       map((user) => {
         if (user != null) {
+          console.error("PODE IR");
           return true;
         }
-
+        console.error("PARADO AI");
         return this.router.createUrlTree(["/auth"]);
       })
     );

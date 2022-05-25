@@ -1,23 +1,27 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { Store } from "@ngrx/store";
 
-import { AuthResponseData, AuthService } from "./auth.service";
+import * as fromApp from "../store/app.reducer";
+import * as fromAuth from "./store/auth.reducer";
 
 @Component({
   selector: "app-auth",
   templateUrl: "./auth.component.html",
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit {
   isLoginMode = true;
   isLoading = false;
   error: string | null = null;
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly router: Router
-  ) {}
+  constructor(private readonly store: Store<fromApp.AppState>) {}
+
+  ngOnInit(): void {
+    this.store.select("auth").subscribe((authState) => {
+      this.isLoading = authState.loading;
+      this.error = authState.authError;
+    });
+  }
 
   onSwitchMode(): void {
     this.isLoginMode = !this.isLoginMode;
@@ -29,24 +33,13 @@ export class AuthComponent {
     this.isLoading = true;
     const { email, password } = form.value;
 
-    let authObs: Observable<AuthResponseData>;
-
     if (this.isLoginMode) {
-      authObs = this.authService.login(email, password);
+      this.store.dispatch(new fromAuth.Actions.LoginStart({ email, password }));
     } else {
-      authObs = this.authService.signup(email, password);
+      this.store.dispatch(
+        new fromAuth.Actions.SignupStart({ email, password })
+      );
     }
-
-    authObs.subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        void this.router.navigate(["/recipes"]);
-      },
-      error: (errorMessage) => {
-        this.isLoading = false;
-        this.error = errorMessage;
-      },
-    });
 
     form.reset();
   }

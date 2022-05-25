@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Store } from "@ngrx/store";
 import { map } from "rxjs";
 
-import { AuthService } from "../auth/auth.service";
+import * as fromAuth from "../auth/store/auth.reducer";
 import { DataStorageService } from "../shared/data-storage.service";
 import * as fromApp from "../store/app.reducer";
 
@@ -15,7 +15,6 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private readonly dataStorageService: DataStorageService,
-    private readonly authService: AuthService,
     private readonly store: Store<fromApp.AppState>
   ) {}
 
@@ -37,6 +36,6 @@ export class HeaderComponent implements OnInit {
   }
 
   onLogout(): void {
-    this.authService.logout();
+    this.store.dispatch(new fromAuth.Actions.Logout());
   }
 }

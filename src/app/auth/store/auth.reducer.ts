@@ -5,10 +5,14 @@ export * as Actions from "./auth.actions";
 
 export interface State {
   user: User | null;
+  authError: string | null;
+  loading: boolean;
 }
 
 const initialState: State = {
   user: null,
+  authError: null,
+  loading: false,
 };
 
 export function authReducer(
@@ -18,13 +22,35 @@ export function authReducer(
   if (state === undefined) state = initialState;
 
   switch (action.type) {
-    case Actions.LOGIN: {
-      const loginAction = action as Actions.Login;
+    case Actions.SIGNUP_START:
+    case Actions.LOGIN_START: {
+      return {
+        ...state,
+        authError: null,
+        loading: true,
+      };
+    }
+
+    case Actions.AUTHENTICATE_SUCCESS: {
+      const loginAction = action as Actions.AuthenticateSuccess;
       if (loginAction.payload == null) return state;
 
       return {
         ...state,
         user: loginAction.payload,
+        authError: null,
+        loading: false,
+      };
+    }
+
+    case Actions.AUTHENTICATE_FAIL: {
+      const failAction = action as Actions.AuthenticateFail;
+
+      return {
+        ...state,
+        user: null,
+        authError: failAction.payload!,
+        loading: false,
       };
     }
 
