@@ -3,7 +3,7 @@ import { Store } from "@ngrx/store";
 import { map } from "rxjs";
 
 import * as fromAuth from "../auth/store/auth.reducer";
-import { DataStorageService } from "../shared/data-storage.service";
+import * as fromRecipe from "../recipes/store/recipe.reducer";
 import * as fromApp from "../store/app.reducer";
 
 @Component({
@@ -13,10 +13,7 @@ import * as fromApp from "../store/app.reducer";
 export class HeaderComponent implements OnInit {
   isAuthenticated = false;
 
-  constructor(
-    private readonly dataStorageService: DataStorageService,
-    private readonly store: Store<fromApp.AppState>
-  ) {}
+  constructor(private readonly store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
     this.store
@@ -28,11 +25,11 @@ export class HeaderComponent implements OnInit {
   }
 
   onSaveData(): void {
-    this.dataStorageService.saveRecipes();
+    this.store.dispatch(new fromRecipe.Actions.StoreRecipes());
   }
 
   onFetchData(): void {
-    this.dataStorageService.fetchRecipes().subscribe();
+    this.store.dispatch(new fromRecipe.Actions.FetchRecipes());
   }
 
   onLogout(): void {

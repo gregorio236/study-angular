@@ -73,8 +73,8 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(fromAuth.Actions.AUTHENTICATE_SUCCESS),
-        tap(() => {
-          this.router.navigate(["/"]);
+        tap((authSuccessAction: fromAuth.Actions.AuthenticateSuccess) => {
+          if (authSuccessAction.payload?.redirect) this.router.navigate(["/"]);
         })
       ),
     { dispatch: false }
@@ -91,7 +91,10 @@ export class AuthEffects {
         if (user.token == null) return { type: "DUMMY" };
 
         localStorage.setItem(this.UserDataKey, JSON.stringify(user));
-        return new fromAuth.Actions.AuthenticateSuccess(user);
+        return new fromAuth.Actions.AuthenticateSuccess({
+          user,
+          redirect: false,
+        });
       })
     )
   );
@@ -133,7 +136,7 @@ export class AuthEffects {
     localStorage.setItem(this.UserDataKey, JSON.stringify(user));
     this.authService.setLogoutTimer(user.msToTokenExpiration);
 
-    return new fromAuth.Actions.AuthenticateSuccess(user);
+    return new fromAuth.Actions.AuthenticateSuccess({ user, redirect: true });
   }
 
   private handleAuthenticationError(

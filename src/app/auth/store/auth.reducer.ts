@@ -37,7 +37,7 @@ export function authReducer(
 
       return {
         ...state,
-        user: loginAction.payload,
+        user: loginAction.payload.user,
         authError: null,
         loading: false,
       };

@@ -12,6 +12,7 @@ import { AppComponent } from "./app.component";
 import { AuthEffects } from "./auth/store/auth.effects";
 import { CoreModule } from "./core.module";
 import { HeaderComponent } from "./header/header.component";
+import { RecipeEffects } from "./recipes/store/recipe.effects";
 import { SharedModule } from "./shared/shared.module";
 import * as fromApp from "./store/app.reducer";
 
@@ -20,7 +21,7 @@ import * as fromApp from "./store/app.reducer";
   imports: [
     HttpClientModule,
     BrowserModule,
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, RecipeEffects]),
     StoreRouterConnectingModule.forRoot(),
     StoreModule.forRoot(fromApp.appReducer),
     StoreDevtoolsModule.instrument({ logOnly: environment.production }),
