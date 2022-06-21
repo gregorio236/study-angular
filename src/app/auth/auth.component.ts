@@ -34,11 +34,9 @@ export class AuthComponent implements OnInit {
     const { email, password } = form.value;
 
     if (this.isLoginMode) {
-      this.store.dispatch(new fromAuth.Actions.LoginStart({ email, password }));
+      this.store.dispatch(fromAuth.Actions.loginStart({ email, password }));
     } else {
-      this.store.dispatch(
-        new fromAuth.Actions.SignupStart({ email, password })
-      );
+      this.store.dispatch(fromAuth.Actions.signupStart({ email, password }));
     }
 
     form.reset();

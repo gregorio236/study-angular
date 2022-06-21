@@ -1,50 +1,29 @@
-import { Action } from "@ngrx/store";
+import { createAction, props } from "@ngrx/store";
 
 import { Ingredient } from "src/app/shared/ingredient.model";
 
-export const ADD_INGREDIENT: string = "[Shopping List] Add Ingredient";
-export const ADD_INGREDIENTS: string = "[Shopping List] Add Ingredients";
-export const DELETE_INGREDIENT: string = "[Shopping List] Delete Ingredient";
-export const UPDATE_INGREDIENT: string = "[Shopping List] Update Ingredient";
-export const START_EDIT: string = "[Shopping List] Start Edit";
-export const STOP_EDIT: string = "[Shopping List] Stop Edit";
+export const addIngredient = createAction(
+  "[Shopping List] Add Ingredient",
+  props<{ ingredient: Ingredient }>()
+);
 
-export class AddIngredient implements Action {
-  readonly type = ADD_INGREDIENT;
+export const addIngredients = createAction(
+  "[Shopping List] Add Ingredients",
+  props<{ ingredients: Ingredient[] }>()
+);
 
-  constructor(public payload?: Ingredient) {}
-}
+export const deleteIngredient = createAction(
+  "[Shopping List] Delete Ingredient"
+);
 
-export class AddIngredients implements Action {
-  readonly type = ADD_INGREDIENTS;
+export const updateIngredient = createAction(
+  "[Shopping List] Update Ingredient",
+  props<{ ingredient: Ingredient }>()
+);
 
-  constructor(public payload?: Ingredient[]) {}
-}
+export const startEdit = createAction(
+  "[Shopping List] Start Edit",
+  props<{ index: number }>()
+);
 
-export class DeleteIngredient implements Action {
-  readonly type = DELETE_INGREDIENT;
-}
-
-export class UpdateIngredient implements Action {
-  readonly type = UPDATE_INGREDIENT;
-
-  constructor(public payload?: Ingredient) {}
-}
-
-export class StartEdit implements Action {
-  readonly type = START_EDIT;
-
-  constructor(public payload?: number) {}
-}
-
-export class StopEdit implements Action {
-  readonly type = STOP_EDIT;
-}
-
-export type ShoppingListActions =
-  | AddIngredient
-  | AddIngredients
-  | StopEdit
-  | DeleteIngredient
-  | UpdateIngredient
-  | StartEdit;
+export const stopEdit = createAction("[Shopping List] Stop Edit");

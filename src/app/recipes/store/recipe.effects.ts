@@ -10,33 +10,33 @@ import * as fromRecipe from "./recipe.reducer";
 
 @Injectable()
 export class RecipeEffects {
-  fetchRecipes = createEffect(() =>
+  fetchRecipes$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(fromRecipe.Actions.FETCH_RECIPES),
+      ofType(fromRecipe.Actions.fetchRecipes),
       switchMap(() =>
         this.http.get<Recipe[]>(
           "https://study-angular-a520d-default-rtdb.firebaseio.com/recipes.json"
         )
       ),
       map((recipes) =>
-        recipes.map((recipe) => {
-          const { name, description, imagePath, ingredients } = recipe;
-          return new Recipe(
-            name,
-            description,
-            imagePath,
-            ingredients != null ? ingredients : []
-          );
-        })
+        recipes.map(
+          (recipe) =>
+            new Recipe(
+              recipe.name,
+              recipe.description,
+              recipe.imagePath,
+              recipe.ingredients != null ? recipe.ingredients : []
+            )
+        )
       ),
-      map((recipes) => new fromRecipe.Actions.SetRecipes(recipes))
+      map((recipes) => fromRecipe.Actions.setRecipes({ recipes }))
     )
   );
 
-  storeRecipes = createEffect(
+  storeRecipes$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(fromRecipe.Actions.STORE_RECIPES),
+        ofType(fromRecipe.Actions.storeRecipes),
         withLatestFrom(this.store.select("recipes")),
         switchMap(([actionData, recipesState]) => {
           return this.http.put(

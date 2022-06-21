@@ -25,14 +25,14 @@ export class HeaderComponent implements OnInit {
   }
 
   onSaveData(): void {
-    this.store.dispatch(new fromRecipe.Actions.StoreRecipes());
+    this.store.dispatch(fromRecipe.Actions.storeRecipes());
   }
 
   onFetchData(): void {
-    this.store.dispatch(new fromRecipe.Actions.FetchRecipes());
+    this.store.dispatch(fromRecipe.Actions.fetchRecipes());
   }
 
   onLogout(): void {
-    this.store.dispatch(new fromAuth.Actions.Logout());
+    this.store.dispatch(fromAuth.Actions.logout());
   }
 }

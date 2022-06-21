@@ -1,50 +1,27 @@
-import { Action } from "@ngrx/store";
+import { createAction, props } from "@ngrx/store";
 
 import { User } from "../user.model";
 
-export const SIGNUP_START: string = "[Auth] Signup Start";
-export const LOGIN_START: string = "[Auth] Login Start";
-export const AUTHENTICATE_SUCCESS: string = "[Auth] Authenticate Success";
-export const AUTHENTICATE_FAIL: string = "[Auth] Authenticate Fail";
-export const AUTO_LOGIN: string = "[Auth] Auto Login";
-export const LOGOUT: string = "[Auth] Logout";
+export const loginStart = createAction(
+  "[Auth] Login Start",
+  props<{ email: string; password: string }>()
+);
 
-export class SignupStart implements Action {
-  readonly type = SIGNUP_START;
+export const signupStart = createAction(
+  "[Auth] Signup Start",
+  props<{ email: string; password: string }>()
+);
 
-  constructor(public payload?: { email: string; password: string }) {}
-}
+export const authenticateSuccess = createAction(
+  "[Auth] Authenticate Success",
+  props<{ user: User; redirect: boolean }>()
+);
 
-export class LoginStart implements Action {
-  readonly type = LOGIN_START;
+export const authenticateFail = createAction(
+  "[Auth] Authenticate Fail",
+  props<{ error: string }>()
+);
 
-  constructor(public payload?: { email: string; password: string }) {}
-}
+export const autoLogin = createAction("[Auth] Auto Login");
 
-export class AuthenticateSuccess implements Action {
-  readonly type = AUTHENTICATE_SUCCESS;
-
-  constructor(public payload?: { user: User; redirect: boolean }) {}
-}
-
-export class AuthenticateFail implements Action {
-  readonly type = AUTHENTICATE_FAIL;
-
-  constructor(public payload?: string) {}
-}
-
-export class AutoLogin implements Action {
-  readonly type = AUTO_LOGIN;
-}
-
-export class Logout implements Action {
-  readonly type = LOGOUT;
-}
-
-export type AuthActions =
-  | SignupStart
-  | LoginStart
-  | AuthenticateSuccess
-  | AuthenticateFail
-  | AutoLogin
-  | Logout;
+export const logout = createAction("[Auth] Logout");

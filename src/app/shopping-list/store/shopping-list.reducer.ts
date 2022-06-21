@@ -1,3 +1,4 @@
+import { Action, createReducer, on } from "@ngrx/store";
 import { Ingredient } from "src/app/shared/ingredient.model";
 import * as Actions from "./shopping-list.actions";
 
@@ -15,82 +16,59 @@ const initialState: State = {
   editedIngredientIndex: -1,
 };
 
-export function shoppingListReducer(
-  state: State | undefined,
-  action: Actions.ShoppingListActions
-): State {
-  if (state === undefined) state = initialState;
+const _shoppingListReducer = createReducer(
+  initialState,
 
-  switch (action.type) {
-    case Actions.ADD_INGREDIENT: {
-      const addAction = action as Actions.AddIngredient;
-      if (addAction.payload == null) return state;
+  on(Actions.addIngredient, (state, action) => ({
+    ...state,
+    ingredients: [...state.ingredients, action.ingredient],
+  })),
 
-      return {
-        ...state,
-        ingredients: [...state.ingredients, addAction.payload],
-      };
-    }
+  on(Actions.addIngredients, (state, action) => ({
+    ...state,
+    ingredients: [...state.ingredients, ...action.ingredients],
+  })),
 
-    case Actions.ADD_INGREDIENTS: {
-      const addAction = action as Actions.AddIngredients;
-      if (addAction.payload == null) return state;
+  on(Actions.deleteIngredient, (state) => ({
+    ...state,
+    ingredients: [
+      ...state.ingredients.slice(0, state.editedIngredientIndex),
+      ...state.ingredients.slice(state.editedIngredientIndex + 1),
+    ],
+    editedIngredient: null,
+    editedIngredientIndex: -1,
+  })),
 
-      return {
-        ...state,
-        ingredients: [...state.ingredients, ...addAction.payload],
-      };
-    }
+  on(Actions.updateIngredient, (state, action) => {
+    const ingredient = state.ingredients[state.editedIngredientIndex];
+    const updatedIngredient = {
+      ...ingredient,
+      ...action.ingredient,
+    };
+    const updatedIngredients = [...state.ingredients];
+    updatedIngredients[state.editedIngredientIndex] = updatedIngredient;
 
-    case Actions.DELETE_INGREDIENT:
-      return {
-        ...state,
-        ingredients: [
-          ...state.ingredients.slice(0, state.editedIngredientIndex),
-          ...state.ingredients.slice(state.editedIngredientIndex + 1),
-        ],
-        editedIngredient: null,
-        editedIngredientIndex: -1,
-      };
+    return {
+      ...state,
+      ingredients: updatedIngredients,
+      editedIngredient: null,
+      editedIngredientIndex: -1,
+    };
+  }),
 
-    case Actions.UPDATE_INGREDIENT: {
-      const updateAction = action as Actions.UpdateIngredient;
+  on(Actions.startEdit, (state, action) => ({
+    ...state,
+    editedIngredient: { ...state.ingredients[action.index] },
+    editedIngredientIndex: action.index,
+  })),
 
-      const ingredient = state.ingredients[state.editedIngredientIndex];
-      const updatedIngredient = {
-        ...ingredient,
-        ...updateAction.payload,
-      };
-      const updatedIngredients = [...state.ingredients];
-      updatedIngredients[state.editedIngredientIndex] = updatedIngredient;
+  on(Actions.stopEdit, (state) => ({
+    ...state,
+    editedIngredient: null,
+    editedIngredientIndex: -1,
+  }))
+);
 
-      return {
-        ...state,
-        ingredients: updatedIngredients,
-        editedIngredient: null,
-        editedIngredientIndex: -1,
-      };
-    }
-
-    case Actions.START_EDIT: {
-      const startAction = action as Actions.StartEdit;
-      if (startAction.payload == null) return state;
-
-      return {
-        ...state,
-        editedIngredient: { ...state.ingredients[startAction.payload] },
-        editedIngredientIndex: startAction.payload,
-      };
-    }
-
-    case Actions.STOP_EDIT:
-      return {
-        ...state,
-        editedIngredient: null,
-        editedIngredientIndex: -1,
-      };
-
-    default:
-      return state;
-  }
+export function shoppingListReducer(state: State | undefined, action: Action) {
+  return _shoppingListReducer(state, action);
 }

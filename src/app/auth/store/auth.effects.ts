@@ -27,62 +27,62 @@ export interface LoginResponseData extends AuthResponseData {
 export class AuthEffects {
   private readonly UserDataKey = "userData";
 
-  signup = createEffect(() =>
+  authSignup$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(fromAuth.Actions.SIGNUP_START),
-      switchMap((signupAction: fromAuth.Actions.SignupStart) => {
-        return this.http
+      ofType(fromAuth.Actions.signupStart),
+      switchMap((action) =>
+        this.http
           .post<AuthResponseData>(
             `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`,
             {
-              email: signupAction.payload?.email,
-              password: signupAction.payload?.password,
+              email: action.email,
+              password: action.password,
               returnSecureToken: true,
             }
           )
           .pipe(
             map(this.handleAuthenticationSuccess.bind(this)),
             catchError(this.handleAuthenticationError.bind(this))
-          );
-      })
+          )
+      )
     )
   );
 
-  login = createEffect(() =>
+  authLogin$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(fromAuth.Actions.LOGIN_START),
-      switchMap((loginAction: fromAuth.Actions.LoginStart) => {
-        return this.http
+      ofType(fromAuth.Actions.loginStart),
+      switchMap((action) =>
+        this.http
           .post<LoginResponseData>(
             `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`,
             {
-              email: loginAction.payload?.email,
-              password: loginAction.payload?.password,
+              email: action.email,
+              password: action.password,
               returnSecureToken: true,
             }
           )
           .pipe(
             map(this.handleAuthenticationSuccess.bind(this)),
             catchError(this.handleAuthenticationError.bind(this))
-          );
-      })
+          )
+      )
     )
   );
 
-  authSuccess = createEffect(
+  authSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(fromAuth.Actions.AUTHENTICATE_SUCCESS),
-        tap((authSuccessAction: fromAuth.Actions.AuthenticateSuccess) => {
-          if (authSuccessAction.payload?.redirect) this.router.navigate(["/"]);
+        ofType(fromAuth.Actions.authenticateSuccess),
+        tap((action) => {
+          if (action.redirect) this.router.navigate(["/"]);
         })
       ),
     { dispatch: false }
   );
 
-  autoLogin = createEffect(() =>
+  autoLogin$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(fromAuth.Actions.AUTO_LOGIN),
+      ofType(fromAuth.Actions.autoLogin),
       map(() => {
         const userData = localStorage.getItem(this.UserDataKey);
         if (userData == null) return { type: "DUMMY" };
@@ -91,7 +91,7 @@ export class AuthEffects {
         if (user.token == null) return { type: "DUMMY" };
 
         localStorage.setItem(this.UserDataKey, JSON.stringify(user));
-        return new fromAuth.Actions.AuthenticateSuccess({
+        return fromAuth.Actions.authenticateSuccess({
           user,
           redirect: false,
         });
@@ -99,10 +99,10 @@ export class AuthEffects {
     )
   );
 
-  logout = createEffect(
+  authLogout$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(fromAuth.Actions.LOGOUT),
+        ofType(fromAuth.Actions.logout),
         tap(() => {
           localStorage.removeItem(this.UserDataKey);
           this.authService.clearLogoutTimer();
@@ -119,9 +119,7 @@ export class AuthEffects {
     private readonly authService: AuthService
   ) {}
 
-  private handleAuthenticationSuccess(
-    response: AuthResponseData
-  ): fromAuth.Actions.AuthenticateSuccess {
+  private handleAuthenticationSuccess(response: AuthResponseData) {
     const expirationDate = new Date(
       new Date().getTime() + +response.expiresIn * 1000
     );
@@ -136,31 +134,29 @@ export class AuthEffects {
     localStorage.setItem(this.UserDataKey, JSON.stringify(user));
     this.authService.setLogoutTimer(user.msToTokenExpiration);
 
-    return new fromAuth.Actions.AuthenticateSuccess({ user, redirect: true });
+    return fromAuth.Actions.authenticateSuccess({ user, redirect: true });
   }
 
-  private handleAuthenticationError(
-    errorResponse: any
-  ): Observable<fromAuth.Actions.AuthenticateFail> {
-    let errorMessage = "An unkown error occurred!";
+  private handleAuthenticationError(errorResponse: any) {
+    let error = "An unkown error occurred!";
 
     if (errorResponse.error == null || errorResponse.error.error == null)
-      return of(new fromAuth.Actions.AuthenticateFail(errorMessage));
+      return of(fromAuth.Actions.authenticateFail({ error }));
 
     switch (errorResponse.error.error.message) {
       case "EMAIL_EXISTS":
-        errorMessage = "The email exists already!";
+        error = "The email exists already!";
         break;
 
       case "EMAIL_NOT_FOUND":
-        errorMessage = "The email was not found!";
+        error = "The email was not found!";
         break;
 
       case "INVALID_PASSWORD":
-        errorMessage = "The password is invalid!";
+        error = "The password is invalid!";
         break;
     }
 
-    return of(new fromAuth.Actions.AuthenticateFail(errorMessage));
+    return of(fromAuth.Actions.authenticateFail({ error }));
   }
 }

@@ -1,4 +1,5 @@
-import { iif } from "rxjs";
+import { Action, createReducer, on } from "@ngrx/store";
+
 import { Recipe } from "../recipe.model";
 import * as Actions from "./recipe.actions";
 
@@ -12,64 +13,40 @@ const initialState: State = {
   recipes: [],
 };
 
-export function recipeReducer(
-  state: State | undefined,
-  action: Actions.RecipeActions
-): State {
-  if (state == null) state = initialState;
+const _recipeReducer = createReducer(
+  initialState,
 
-  switch (action.type) {
-    case Actions.ADD_RECIPE: {
-      const addAction = action as Actions.AddRecipe;
-      if (addAction.payload == null) return state;
+  on(Actions.addRecipe, (state, action) => ({
+    ...state,
+    recipes: [...state.recipes, action.recipe],
+  })),
 
-      return {
-        ...state,
-        recipes: [...state.recipes, addAction.payload],
-      };
-    }
+  on(Actions.deleteRecipe, (state, action) => ({
+    ...state,
+    recipes: state.recipes.filter((recipe, index) => action.index !== index),
+  })),
 
-    case Actions.DELETE_RECIPE: {
-      const deleteAction = action as Actions.DeleteRecipe;
-      if (deleteAction.payload == null) return state;
+  on(Actions.setRecipes, (state, action) => ({
+    ...state,
+    recipes: [...action.recipes],
+  })),
 
-      return {
-        ...state,
-        recipes: state.recipes.filter(
-          (recipe, index) => deleteAction.payload !== index
-        ),
-      };
-    }
+  on(Actions.updateRecipe, (state, action) => {
+    const updatedRecipe = {
+      ...state.recipes[action.index],
+      ...action.newRecipe,
+    };
 
-    case Actions.SET_RECIPES: {
-      const setAction = action as Actions.SetRecipes;
-      if (setAction.payload == null) return state;
+    const updatedRecipes = [...state.recipes];
+    updatedRecipes[action.index] = updatedRecipe;
 
-      return {
-        ...state,
-        recipes: [...setAction.payload],
-      };
-    }
+    return {
+      ...state,
+      recipes: updatedRecipes,
+    };
+  })
+);
 
-    case Actions.UPDATE_RECIPE: {
-      const updateAction = action as Actions.UpdateRecipe;
-      if (updateAction.payload == null) return state;
-
-      const updatedRecipe = {
-        ...state.recipes[updateAction.payload.index],
-        ...updateAction.payload.newRecipe,
-      };
-
-      const updatedRecipes = [...state.recipes];
-      updatedRecipes[updateAction.payload.index] = updatedRecipe;
-
-      return {
-        ...state,
-        recipes: updatedRecipes,
-      };
-    }
-
-    default:
-      return state;
-  }
+export function recipeReducer(state: State | undefined, action: Action) {
+  return _recipeReducer(state, action);
 }

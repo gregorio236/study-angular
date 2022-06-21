@@ -25,7 +25,7 @@ export class AuthService {
 
   setLogoutTimer(msToTokenExpiration: number): void {
     this.tokenExpirationTimer = setTimeout(() => {
-      this.store.dispatch(new fromAuth.Actions.Logout());
+      this.store.dispatch(fromAuth.Actions.logout());
     }, msToTokenExpiration);
   }
 
