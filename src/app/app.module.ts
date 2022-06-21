@@ -20,7 +20,7 @@ import * as fromApp from "./store/app.reducer";
   declarations: [AppComponent, HeaderComponent],
   imports: [
     HttpClientModule,
-    BrowserModule,
+    BrowserModule.withServerTransition({ appId: "serverApp" }),
     EffectsModule.forRoot([AuthEffects, RecipeEffects]),
     StoreRouterConnectingModule.forRoot(),
     StoreModule.forRoot(fromApp.appReducer),
